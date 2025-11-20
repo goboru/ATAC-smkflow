@@ -1,6 +1,6 @@
 conda_env: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/scripts/ATACpipeline-environment.yml"
 
 raw_dir: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC"
-out_dir: "/media/WORK/gborrego/AB_Multiomics_CD14_CD4/data/clean"
+out_dir: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean"
 
-bowtie2_index: "/media/WORK/gborrego/AB_Multiomics_CD14_CD4/data/external/Homo_sapiens_hg38/GRCh38_noalt_as/GRCh38_noalt_as"
+bowtie2_index: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/external/Homo_sapiens_hg38/GRCh38_noalt_as/GRCh38_noalt_as"
