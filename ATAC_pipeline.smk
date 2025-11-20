@@ -3,7 +3,7 @@
 # By Goboru, November 2025
 # Pipeline to run the complete pipeline to analyze ATAC data or do individual steps 
 
-# Use: snakemake -s ATAC_pipeline.smk --cores 8 --use-conda
+# Use: snakemake -s ATAC_pipeline.smk --cores 8
 
 # Configurable paths
 configfile: "config.yaml"  # optional
