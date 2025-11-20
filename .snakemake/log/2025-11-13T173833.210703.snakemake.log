@@ -1,7 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
-Missing input files for rule fastqc_trimmed:
-    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.zip
-    wildcards: sample=03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2
-    affected files:
-        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2.trimmed.fastq.gz

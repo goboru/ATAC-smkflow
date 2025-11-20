@@ -1,8 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule all in file /media/WORK/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 20:
-Missing input files for rule all:
-    affected files:
-        /media/WORK/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_align.bam
-        /media/WORK/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_align.bam
-        /media/WORK/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_align.bam
-        /media/WORK/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_align.bam
