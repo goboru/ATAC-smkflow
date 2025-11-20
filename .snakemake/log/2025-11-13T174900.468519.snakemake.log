@@ -1,0 +1,144 @@
+Building DAG of jobs...
+Using shell: /media/scratch/gborrego/conda/envs/ATACpipeline/bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Job stats:
+job                count
+---------------  -------
+all                    1
+fastqc_trimmed         8
+multiqc_trimmed        1
+total                 10
+
+Select jobs to execute...
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2_fastqc.zip
+    log: logs/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2.log
+    jobid: 9
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2_fastqc.zip
+    wildcards: sample=01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1_fastqc.zip
+    log: logs/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1.log
+    jobid: 11
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1_fastqc.zip
+    wildcards: sample=04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2_fastqc.zip
+    log: logs/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2.log
+    jobid: 13
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2_fastqc.zip
+    wildcards: sample=02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1_fastqc.zip
+    log: logs/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1.log
+    jobid: 4
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1_fastqc.zip
+    wildcards: sample=02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2_fastqc.zip
+    log: logs/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2.log
+    jobid: 6
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2_fastqc.zip
+    wildcards: sample=04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1_fastqc.zip
+    log: logs/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1.log
+    jobid: 8
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1_fastqc.zip
+    wildcards: sample=03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1_fastqc.zip
+    log: logs/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1.log
+    jobid: 12
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1_fastqc.zip
+    wildcards: sample=01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:49:01 2025]
+rule fastqc_trimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2.trimmed.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.html, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.zip
+    log: logs/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2.log
+    jobid: 2
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.zip
+    wildcards: sample=03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2
+    resources: tmpdir=/tmp
+
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 8  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1_fastqc.zip
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 11  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1_fastqc.zip
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 2  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.zip
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 6  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2_fastqc.zip
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 4  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1_fastqc.zip
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 13  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2_fastqc.zip
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 9  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2_fastqc.zip
+Waiting at most 5 seconds for missing files.
+MissingOutputException in rule fastqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 81:
+Job 12  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1_fastqc.html
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1_fastqc.zip
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-11-13T174900.468519.snakemake.log

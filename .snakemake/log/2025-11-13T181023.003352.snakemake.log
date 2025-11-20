@@ -1,0 +1,62 @@
+Building DAG of jobs...
+Using shell: /media/scratch/gborrego/conda/envs/ATACpipeline/bin/bash
+Provided cores: 14
+Rules claiming more threads will be scaled down.
+Job stats:
+job              count
+-------------  -------
+all                  1
+bowtie2_align        4
+total                5
+
+Select jobs to execute...
+
+[Thu Nov 13 18:10:23 2025]
+rule bowtie2_align:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_align.bam
+    log: logs/bowtie2/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.err, logs/bowtie2/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.out
+    jobid: 1
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_align.bam
+    wildcards: uniq_sample=02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27
+    threads: 6
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 18:10:23 2025]
+rule bowtie2_align:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_align.bam
+    log: logs/bowtie2/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.err, logs/bowtie2/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.out
+    jobid: 3
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_align.bam
+    wildcards: uniq_sample=04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29
+    threads: 6
+    resources: tmpdir=/tmp
+
+Terminating processes on user request, this might take some time.
+[Thu Nov 13 18:10:43 2025]
+Error in rule bowtie2_align:
+    jobid: 3
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_align.bam
+    log: logs/bowtie2/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.err, logs/bowtie2/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.out (check log file(s) for error details)
+    shell:
+        
+        bowtie2 --very-sensitive -I 25 -X 700             -x /media/scratch/gborrego/AB_Multiomics_CD14_CD4/data/external/Homo_sapiens_hg38/GRCh38_noalt_as/GRCh38_noalt_as             -1 /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1.fastq.gz -2 /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2.fastq.gz             -p 6             2> logs/bowtie2/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.err         | samtools sort -o /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_align.bam -             > logs/bowtie2/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.out
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Thu Nov 13 18:10:43 2025]
+Error in rule bowtie2_align:
+    jobid: 1
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_align.bam
+    log: logs/bowtie2/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.err, logs/bowtie2/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.out (check log file(s) for error details)
+    shell:
+        
+        bowtie2 --very-sensitive -I 25 -X 700             -x /media/scratch/gborrego/AB_Multiomics_CD14_CD4/data/external/Homo_sapiens_hg38/GRCh38_noalt_as/GRCh38_noalt_as             -1 /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1.fastq.gz -2 /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2.fastq.gz             -p 6             2> logs/bowtie2/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.err         | samtools sort -o /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/aligned/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_align.bam -             > logs/bowtie2/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.out
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Complete log: .snakemake/log/2025-11-13T181023.003352.snakemake.log

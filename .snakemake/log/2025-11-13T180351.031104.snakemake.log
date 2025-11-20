@@ -1,0 +1,4 @@
+Building DAG of jobs...
+WildcardError in rule all in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 20:
+Wildcards in input files cannot be determined from output files:
+'uniq_sample'

@@ -1,0 +1,81 @@
+Building DAG of jobs...
+Using shell: /media/scratch/gborrego/conda/envs/ATACpipeline/bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Job stats:
+job         count
+--------  -------
+all             1
+trimming        4
+total           5
+
+Select jobs to execute...
+
+[Thu Nov 13 17:14:57 2025]
+rule trimming:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_R2.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28.fastp.json, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28.fastp.html
+    log: logs/trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28.log
+    jobid: 2
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_R1.trimmed.fastq.gz
+    wildcards: uniq_sample=03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:14:57 2025]
+rule trimming:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_R2.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.fastp.json, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.fastp.html
+    log: logs/trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27.log
+    jobid: 1
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_R1.trimmed.fastq.gz
+    wildcards: uniq_sample=02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:14:57 2025]
+rule trimming:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_R2.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.fastp.json, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.fastp.html
+    log: logs/trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29.log
+    jobid: 3
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_R1.trimmed.fastq.gz
+    wildcards: uniq_sample=04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29
+    resources: tmpdir=/tmp
+
+
+[Thu Nov 13 17:14:57 2025]
+rule trimming:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2.fastq.gz
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_R2.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26.fastp.json, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26.fastp.html
+    log: logs/trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26.log
+    jobid: 4
+    reason: Missing output files: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_R1.trimmed.fastq.gz
+    wildcards: uniq_sample=01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26
+    resources: tmpdir=/tmp
+
+[Thu Nov 13 17:18:37 2025]
+Finished job 2.
+1 of 5 steps (20%) done
+[Thu Nov 13 17:18:49 2025]
+Finished job 3.
+2 of 5 steps (40%) done
+[Thu Nov 13 17:20:07 2025]
+Finished job 1.
+3 of 5 steps (60%) done
+[Thu Nov 13 17:23:15 2025]
+Finished job 4.
+4 of 5 steps (80%) done
+Select jobs to execute...
+
+[Thu Nov 13 17:23:15 2025]
+localrule all:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_R1.trimmed.fastq.gz
+    jobid: 0
+    reason: Input files updated by another job: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_R1.trimmed.fastq.gz, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/temp_trimming/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_R1.trimmed.fastq.gz
+    resources: tmpdir=/tmp
+
+[Thu Nov 13 17:23:15 2025]
+Finished job 0.
+5 of 5 steps (100%) done
+Complete log: .snakemake/log/2025-11-13T171456.412728.snakemake.log

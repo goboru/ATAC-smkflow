@@ -1,0 +1,13 @@
+Building DAG of jobs...
+MissingInputException in rule multiqc_trimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 93:
+Missing input files for rule multiqc_trimmed:
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/multiqc_report.html
+    affected files:
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2_fastqc.zip
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1_fastqc.zip
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2_fastqc.zip
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2_fastqc.zip
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1_fastqc.zip
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1_fastqc.zip
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.zip
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_trimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1_fastqc.zip

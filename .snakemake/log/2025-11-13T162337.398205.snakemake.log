@@ -1,0 +1,23 @@
+Building DAG of jobs...
+Using shell: /media/scratch/gborrego/conda/envs/ATACpipeline/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job             count
+------------  -------
+make_log_dir        1
+total               1
+
+Select jobs to execute...
+
+[Thu Nov 13 16:23:37 2025]
+rule make_log_dir:
+    output: logs
+    jobid: 0
+    reason: Missing output files: logs
+    resources: tmpdir=/tmp
+
+[Thu Nov 13 16:23:37 2025]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: .snakemake/log/2025-11-13T162337.398205.snakemake.log

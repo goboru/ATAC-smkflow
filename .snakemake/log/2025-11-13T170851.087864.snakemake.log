@@ -1,0 +1,32 @@
+Building DAG of jobs...
+Using shell: /media/scratch/gborrego/conda/envs/ATACpipeline/bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count
+-----------------  -------
+all                      1
+multiqc_untrimmed        1
+total                    2
+
+Select jobs to execute...
+
+[Thu Nov 13 17:08:51 2025]
+rule multiqc_untrimmed:
+    input: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r2_fastqc.zip, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r1_fastqc.zip, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r2_fastqc.zip, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/03_0LHT_02YGIPBLN_C4_ATAC_hs_i19-28_r1_fastqc.zip, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r2_fastqc.zip, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/04_0LHU_02YGIPBLN_C15_ATAC_hs_i20-29_r1_fastqc.zip, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/01_0LHR_02YGIPBLN_GCA16_ATAC_hs_i17-26_r1_fastqc.zip, /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/02_0LHS_02YGIPBLN_GCA6_ATAC_hs_i18-27_r2_fastqc.zip
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/multiqc_report.html
+    jobid: 1
+    reason: Code has changed since last execution
+    resources: tmpdir=/tmp
+
+ImproperOutputException in rule multiqc_untrimmed in file /media/scratch/gborrego/AB_Multiomics_CD14_CD4/scripts/everlook_pipeline/ATAC_pipeline.smk, line 44:
+Outputs of incorrect type (directories when expecting files or vice versa). Output directories must be flagged with directory(). for rule multiqc_untrimmed:
+    output: /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/multiqc_report.html
+    affected files:
+        /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/multiqc_report.html
+Removing output files of failed job multiqc_untrimmed since they might be corrupted:
+/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/multiqc_report.html
+Skipped removing non-empty directory /home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean/qc_untrimmed/multiqc_report.html
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-11-13T170851.087864.snakemake.log
