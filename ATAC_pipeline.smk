@@ -19,8 +19,8 @@ UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 # This rule sets when the pipeline is finished
 rule all:
     input: 
-        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES)
-        #f"{dir_out}/qc_trimmed/multiqc_report.html"
+        f"{dir_out}/qc_untrimmed/multiqc_report.html"
+        #expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES)
         #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
         #expand(f"{dir_out}/aligned/{{sample}}_align.bam", sample=UNIQ_SAMPLES)
 
@@ -42,9 +42,9 @@ rule multiqc_untrimmed:
     input:
         expand(f"{dir_out}/qc_untrimmed/{{sample}}_fastqc.zip", sample=SAMPLES)
     output:
-        f"{dir_out}/qc_untrimmed/multiqc_report.html"
+        html=f"{dir_out}/qc_untrimmed/multiqc_report.html"
     shell:
-        "multiqc {dir_out}/qc_untrimmed --force --outdir {dir_out}/qc_untrimmed"
+        "multiqc {dir_out}/qc_untrimmed --force -o {dir_out}/qc_untrimmed"
 
 
 
@@ -96,6 +96,7 @@ rule multiqc_trimmed:
 
 
 # Rule 4: Alignment with bowtie2
+
 # rule bowtie2_align:
 #     input:
 #         r1 = f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz",
@@ -184,4 +185,6 @@ rule samtools_sort:
 
 # Rule 7: Quality controls after peak calling
 
+
 # Rule 8: Differential analysis
+# Rule 8.1: Sensitivity analysis. Sex, batch, age?
