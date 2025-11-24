@@ -19,7 +19,7 @@ UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 # This rule sets when the pipeline is finished
 rule all:
     input: 
-        f"{dir_out}/qc_untrimmed/multiqc_report.html"
+        f"{dir_out}/qc_trimmed/multiqc_report.html"
         #expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES)
         #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
         #expand(f"{dir_out}/aligned/{{sample}}_align.bam", sample=UNIQ_SAMPLES)
@@ -66,7 +66,7 @@ rule trimming:
         fastp \
             -i {input.r1} -I {input.r2} \
             -o {output.r1} -O {output.r2} \
-            --detect_adapter_for_pe \
+            --trim_poly_g \
             -j {output.json} -h {output.html} \
             &> {log}
         """
@@ -82,7 +82,7 @@ rule fastqc_trimmed:
     log:
         f"{dir_out}/logs/qc_trimmed/{{sample}}.log"
     shell:
-        "fastqc {input} --outdir {dir_out}/qc_trimmed &> {log}"
+        "fastqc {input}  --outdir {dir_out}/qc_trimmed &> {log}"
 
 # Rule 3.2: multiqc of FastQC's after trimming
 rule multiqc_trimmed:
