@@ -89,10 +89,9 @@ rule multiqc_trimmed:
     input:
         expand(f"{dir_out}/qc_trimmed/{{sample}}.trimmed_fastqc.zip", sample=SAMPLES)
     output:
-        f"{dir_out}/qc_trimmed/multiqc_report.html"
+         html=f"{dir_out}/qc_trimmed/multiqc_report.html"
     shell:
-        "multiqc {dir_out}/qc_trimmed --force --outdir {dir_out}/qc_trimmed"
-
+        "multiqc {dir_out}/qc_trimmed --force -o {dir_out}/qc_trimmed"
 
 
 # Rule 4: Alignment with bowtie2
