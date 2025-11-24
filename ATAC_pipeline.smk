@@ -24,12 +24,6 @@ rule all:
         #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
         #expand(f"{dir_out}/aligned/{{sample}}_align.bam", sample=UNIQ_SAMPLES)
 
-#Rule 0: Create directory for saving the logs
-rule make_log_dir:
-    output:
-        directory("logs")
-    shell:
-        "mkdir -p logs"
 
 # Rule 1: FastQC before trimming
 rule fastqc_untrimmed:
@@ -39,7 +33,7 @@ rule fastqc_untrimmed:
         html=f"{dir_out}/qc_untrimmed/{{sample}}_fastqc.html",
         zip=f"{dir_out}/qc_untrimmed/{{sample}}_fastqc.zip"
     log:
-        f"logs/qc_untrimmed/{{sample}}.log"
+        f"{dir_out}/logs/qc_untrimmed/{{sample}}.log"
     shell:
         "fastqc {input} --outdir {dir_out}/qc_untrimmed &> {log}"
 
@@ -66,7 +60,7 @@ rule trimming:
         json = f"{dir_out}/temp_trimming/{{uniq_sample}}.fastp.json",
         html = f"{dir_out}/temp_trimming/{{uniq_sample}}.fastp.html"
     log:
-        f"logs/trimming/{{uniq_sample}}.log"
+        f"{dir_out}/logs/trimming/{{uniq_sample}}.log"
     shell:
         """
         fastp \
@@ -86,7 +80,7 @@ rule fastqc_trimmed:
         html=f"{dir_out}/qc_trimmed/{{sample}}.trimmed_fastqc.html",
         zip=f"{dir_out}/qc_trimmed/{{sample}}.trimmed_fastqc.zip"
     log:
-        f"logs/qc_trimmed/{{sample}}.log"
+        f"{dir_out}/logs/qc_trimmed/{{sample}}.log"
     shell:
         "fastqc {input} --outdir {dir_out}/qc_trimmed &> {log}"
 
@@ -131,7 +125,7 @@ rule bowtie2_sam:
     output:
         sam = f"{dir_out}/aligned/{{uniq_sample}}.sam"
     log:
-        f"logs/bowtie2/{{uniq_sample}}.log"
+        f"{dir_out}/logs/bowtie2/{{uniq_sample}}.log"
     params:
         index = config["bowtie2_index"]
     threads: 6
@@ -155,7 +149,7 @@ rule samtools_sort:
     output:
         bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
     log:
-        f"logs/samtools_afterbw2/{{uniq_sample}}.log"
+        f"{dir_out}/logs/samtools_afterbw2/{{uniq_sample}}.log"
     threads: 4
     shell:
         """
