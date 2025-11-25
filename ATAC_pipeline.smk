@@ -19,10 +19,9 @@ UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 # This rule sets when the pipeline is finished
 rule all:
     input: 
-        f"{dir_out}/qc_untrimmed/multiqc_report.html"
-        #expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES)
+        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES),
+        f"{dir_out}/qc_trimmed/multiqc_report.html"
         #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
-        #expand(f"{dir_out}/aligned/{{sample}}_align.bam", sample=UNIQ_SAMPLES)
 
 
 # Rule 1: FastQC before trimming
@@ -150,7 +149,7 @@ rule samtools_sort:
         bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
     log:
         f"{dir_out}/logs/samtools_afterbw2/{{uniq_sample}}.log"
-    threads: 4
+    threads: config["bowtie2_threads"]
     shell:
         """
         samtools sort -@ {threads} \
@@ -158,6 +157,10 @@ rule samtools_sort:
             {input.sam} \
             &> {log}
         """
+
+
+# Rule for removing sams? 
+
 
 # Rule 5: Post-alingments QCs
 
