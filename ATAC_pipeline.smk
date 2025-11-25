@@ -19,8 +19,7 @@ UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 # This rule sets when the pipeline is finished
 rule all:
     input: 
-        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES),
-        f"{dir_out}/qc_trimmed/multiqc_report.html"
+        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES)
         #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
 
 
@@ -71,7 +70,7 @@ rule trimming:
         """
 
 
-# Rule 3: FastQC before trimming
+# Rule 3: FastQC after trimming
 rule fastqc_trimmed:
     input:
         f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz"
@@ -95,15 +94,40 @@ rule multiqc_trimmed:
 
 # Rule 4: Alignment with bowtie2
 
-# rule bowtie2_align:
+rule bowtie2_align:
+    input:
+        r1 = f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz",
+        r2 = f"{dir_raw}/{{uniq_sample}}_r2.fastq.gz"
+    output:
+        bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
+    log:
+        bowtie = f"{dir_out}/logs/bowtie2/{{uniq_sample}}.log",
+        samtools = f"{dir_out}/logs/samtools_sort/{{uniq_sample}}.log"
+    params:
+        index = config["bowtie2_index"]
+    threads: config["bowtie2_threads"]
+    shell:
+        """
+        (bowtie2 --very-sensitive -I 25 -X 700 -k 10 \
+            -x {params.index} \
+            -1 {input.r1} -2 {input.r2} \
+            -p {threads} \
+            2> {log.bowtie}) \
+        | samtools sort \
+            -@ 2 \
+            -o {output.bam} \
+            - \
+            2> {log.samtools}
+        """
+        
+# rule bowtie2_sam:
 #     input:
 #         r1 = f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz",
 #         r2 = f"{dir_raw}/{{uniq_sample}}_r2.fastq.gz"
 #     output:
-#         bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
+#         sam = f"{dir_out}/aligned/{{uniq_sample}}.sam"
 #     log:
-#         err = f"logs/bowtie2/{{uniq_sample}}.err",
-#         out = f"logs/bowtie2/{{uniq_sample}}.out"
+#         f"{dir_out}/logs/bowtie2/{{uniq_sample}}.log"
 #     params:
 #         index = config["bowtie2_index"]
 #     threads: 6
@@ -113,53 +137,32 @@ rule multiqc_trimmed:
 #             -x {params.index} \
 #             -1 {input.r1} -2 {input.r2} \
 #             -p {threads} \
-#             2> {log.err} | samtools sort -o {output.bam} - \
-#             > {log.out}
+#             1> {output.sam} \
+#             2> {log}
 #         """
-        
-rule bowtie2_sam:
-    input:
-        r1 = f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz",
-        r2 = f"{dir_raw}/{{uniq_sample}}_r2.fastq.gz"
-    output:
-        sam = f"{dir_out}/aligned/{{uniq_sample}}.sam"
-    log:
-        f"{dir_out}/logs/bowtie2/{{uniq_sample}}.log"
-    params:
-        index = config["bowtie2_index"]
-    threads: 6
-    shell:
-        """
-        bowtie2 --very-sensitive -I 25 -X 700 -k 10 \
-            -x {params.index} \
-            -1 {input.r1} -2 {input.r2} \
-            -p {threads} \
-            1> {output.sam} \
-            2> {log}
-        """
 
 
-# Rule 4.1: Samtools after bowtie2
-    #This should have been the same step, I could not make it work the two in one
+# # Rule 4.1: Samtools after bowtie2
+#     #This should have been the same step, I could not make it work the two in one
 
-rule samtools_sort:
-    input:
-        sam = f"{dir_out}/aligned/{{uniq_sample}}.sam"
-    output:
-        bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
-    log:
-        f"{dir_out}/logs/samtools_afterbw2/{{uniq_sample}}.log"
-    threads: config["bowtie2_threads"]
-    shell:
-        """
-        samtools sort -@ {threads} \
-            -o {output.bam} \
-            {input.sam} \
-            &> {log}
-        """
+# rule samtools_sort:
+#     input:
+#         sam = f"{dir_out}/aligned/{{uniq_sample}}.sam"
+#     output:
+#         bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
+#     log:
+#         f"{dir_out}/logs/samtools_afterbw2/{{uniq_sample}}.log"
+#     threads: 2
+#         shell:
+#                 """
+#             samtools sort -@ {threads} \
+#                 -o {output.bam} \
+#                 {input.sam} \
+#                 &> {log}
+#             """
 
 
-# Rule for removing sams? 
+    # Rule for removing sams? 
 
 
 # Rule 5: Post-alingments QCs
