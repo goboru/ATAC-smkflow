@@ -3,7 +3,8 @@
 # By Goboru, November 2025
 # Pipeline to run the complete pipeline to analyze ATAC data or do individual steps 
 
-# Use: snakemake -s ATAC_pipeline.smk --cores 8
+
+# Use: conda activate ATACpipeline; snakemake -s ATAC_pipeline.smk --cores 8
 
 # Configurable paths
 configfile: "config.yaml"  # optional
@@ -96,8 +97,8 @@ rule multiqc_trimmed:
 
 rule bowtie2_align:
     input:
-        r1 = f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz",
-        r2 = f"{dir_raw}/{{uniq_sample}}_r2.fastq.gz"
+        r1 = f"{dir_out}/temp_trimming/{{uniq_sample}}_r1.trimmed.fastq.gz",
+        r2 = f"{dir_out}/temp_trimming/{{uniq_sample}}_r2.trimmed.fastq.gz"
     output:
         bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
     log:
