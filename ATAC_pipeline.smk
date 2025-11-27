@@ -146,8 +146,7 @@ rule idxstats:
         """
 
 # Rule 5.1: remove mitochondrial reads
-# #Generate the idxstats report
-# samtools idxstats <sample>_sorted.bam > <sample>_sorted.idxstats
+
 
 # #Check the number of reads mapped to the mitochondria (chrM)
 # grep "chrM" <sample>_sorted.idxstats
@@ -159,10 +158,12 @@ rule idxstats:
 # #Remove reads aligned to the mitochondria
 # samtools view -h <sample>_sorted.bam | grep -v chrM | samtools sort -O bam -o <sample>.rmChrM.bam -T .
 
-# Rule 5.2: Mark duplicates, remove dupliccates and low quality reads
 
 # Rule 5.3: Remove ENCODE blacklist regions
 
+# Remove non canonical reads
+
+# Rule 5.2: Mark duplicates, remove dupliccates and low quality reads
 
 # Rule 6: Peak calling with MACS2
 
