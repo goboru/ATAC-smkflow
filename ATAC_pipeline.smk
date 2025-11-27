@@ -20,7 +20,7 @@ UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 # This rule sets when the pipeline is finished
 rule all:
     input: 
-        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES)
+        expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES)
         #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
 
 
@@ -121,52 +121,29 @@ rule bowtie2_align:
             2> {log.samtools}
         """
         
-# rule bowtie2_sam:
-#     input:
-#         r1 = f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz",
-#         r2 = f"{dir_raw}/{{uniq_sample}}_r2.fastq.gz"
-#     output:
-#         sam = f"{dir_out}/aligned/{{uniq_sample}}.sam"
-#     log:
-#         f"{dir_out}/logs/bowtie2/{{uniq_sample}}.log"
-#     params:
-#         index = config["bowtie2_index"]
-#     threads: 6
-#     shell:
-#         """
-#         bowtie2 --very-sensitive -I 25 -X 700 -k 10 \
-#             -x {params.index} \
-#             -1 {input.r1} -2 {input.r2} \
-#             -p {threads} \
-#             1> {output.sam} \
-#             2> {log}
-#         """
 
 
-# # Rule 4.1: Samtools after bowtie2
-#     #This should have been the same step, I could not make it work the two in one
-
-# rule samtools_sort:
-#     input:
-#         sam = f"{dir_out}/aligned/{{uniq_sample}}.sam"
-#     output:
-#         bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
-#     log:
-#         f"{dir_out}/logs/samtools_afterbw2/{{uniq_sample}}.log"
-#     threads: 2
-#         shell:
-#                 """
-#             samtools sort -@ {threads} \
-#                 -o {output.bam} \
-#                 {input.sam} \
-#                 &> {log}
-#             """
 
 
-    # Rule for removing sams? 
+# section 5: Post-alingments QCs
 
-
-# Rule 5: Post-alingments QCs
+#Rule 5.1: idxstats reports
+rule idxstats:
+    input:
+        bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
+    output:
+        report = f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt"
+    log:
+        f"{dir_out}/logs/idx_report/{{uniq_sample}}.idxstats.log"
+    threads: 1
+    shell:
+        """
+        # Make sure the BAM is indexed
+        samtools index {input.bam} 2>> {log}
+        
+        # Generate idxstats report
+        samtools idxstats {input.bam} > {output.report} 2>> {log}
+        """
 
 # Rule 5.1: remove mitochondrial reads
 # #Generate the idxstats report
