@@ -109,7 +109,7 @@ rule bowtie2_align:
     threads: config["bowtie2_threads"]
     shell:
         """
-        (bowtie2 --very-sensitive -I 25 -X 700 -k 10 \
+        (bowtie2 --very-sensitive -I 25 -X 700 \
             -x {params.index} \
             -1 {input.r1} -2 {input.r2} \
             -p {threads} \
@@ -140,7 +140,7 @@ rule idxstats:
         """
         # Make sure the BAM is indexed
         samtools index {input.bam} 2>> {log}
-        
+
         # Generate idxstats report
         samtools idxstats {input.bam} > {output.report} 2>> {log}
         """
