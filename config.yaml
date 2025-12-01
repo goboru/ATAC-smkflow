@@ -3,5 +3,10 @@ conda_env: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/scripts/ATACpipeline-
 raw_dir: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/raw/ATAC"
 out_dir: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/clean"
 
+# default should be trim_mode: "--detect_adapter_for_pe"
+trim_mode: "--trim_poly_g"
+
 bowtie2_index: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/external/Homo_sapiens_hg38/GRCh38_noalt_as/GRCh38_noalt_as"
 bowtie2_threads: 6 
+
+blacklist_bed: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/external/ENCODE-hg38-blacklist.v2.bed"

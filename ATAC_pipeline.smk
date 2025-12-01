@@ -20,7 +20,7 @@ UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 # This rule sets when the pipeline is finished
 rule all:
     input: 
-        expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES)
+        expand(f"{dir_out}/mito/{{uniq_sample}}.noMT.bam", uniq_sample=UNIQ_SAMPLES)
         #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
 
 
@@ -53,6 +53,8 @@ rule trimming:
     input:
         r1 = f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz",
         r2 = f"{dir_raw}/{{uniq_sample}}_r2.fastq.gz"
+    params:
+        mode = config["trim_mode"]
     output:
         r1 = f"{dir_out}/temp_trimming/{{uniq_sample}}_r1.trimmed.fastq.gz",
         r2 = f"{dir_out}/temp_trimming/{{uniq_sample}}_r2.trimmed.fastq.gz",
@@ -65,7 +67,7 @@ rule trimming:
         fastp \
             -i {input.r1} -I {input.r2} \
             -o {output.r1} -O {output.r2} \
-            --detect_adapter_for_pe \
+            {params.mode} \
             -j {output.json} -h {output.html} \
             &> {log}
         """
@@ -145,25 +147,73 @@ rule idxstats:
         samtools idxstats {input.bam} > {output.report} 2>> {log}
         """
 
-# Rule 5.1: remove mitochondrial reads
-
-
-# #Check the number of reads mapped to the mitochondria (chrM)
-# grep "chrM" <sample>_sorted.idxstats
-# #Generate the flagstat report
-# samtools flagstat <sample>_sorted.bam > <sample>_sorted.flagstat
-
-# #check the total number of aligned fragments
-# head <sample>_sorted.flagstat
-# #Remove reads aligned to the mitochondria
-# samtools view -h <sample>_sorted.bam | grep -v chrM | samtools sort -O bam -o <sample>.rmChrM.bam -T .
-
+# Rule 5.2: remove mitochondrial reads
+rule remove_mito:
+    input:
+        bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
+    output:
+        bam = f"{dir_out}/mito/{{uniq_sample}}.noMT.bam"
+    log:
+        f"{dir_out}/logs/mito/{{uniq_sample}}.remove_mito.log"
+    threads: 4
+    shell:
+        r"""
+        samtools view -h {input.bam} \
+            | awk '$3 != "chrM" && $3 != "MT" || $1 ~ /^@/' \
+            | samtools view -b -o {output.bam} \
+            &> {log}
+        samtools index {output.bam}
+        """
 
 # Rule 5.3: Remove ENCODE blacklist regions
+rule remove_blacklist:
+    input:
+        bam = f"{dir_out}/filtered/{{uniq_sample}}.noMT.bam"
+    output:
+        bam = f"{dir_out}/filtered/{{uniq_sample}}.noMT.noBlacklist.bam"
+    log:
+        f"{dir_out}/logs/filter/{{uniq_sample}}.remove_blacklist.log"
+    params:
+        blacklist = config["blacklist_bed"]
+    threads: 4
+    shell:
+        r"""
+        bedtools intersect \
+            -v \
+            -abam {input.bam} \
+            -b {params.blacklist} \
+            > {output.bam} 2> {log}
 
-# Remove non canonical reads
+        samtools index {output.bam}
+        """
+# Remove non canonical reads?
 
-# Rule 5.2: Mark duplicates, remove dupliccates and low quality reads
+# Rule 5.4: Mark duplicates, remove dupliccates and low quality reads
+rule mark_duplicates:
+    input:
+        bam = f"{dir_out}/filtered/{{uniq_sample}}.noMT.noBlacklist.bam"
+    output:
+        bam  = f"{dir_out}/filtered/{{uniq_sample}}.final.dedup.bam",
+        metrics = f"{dir_out}/filtered/{{uniq_sample}}.final.dedup.metrics.txt"
+    log:
+        f"{dir_out}/logs/filter/{{uniq_sample}}.dedup.log"
+    threads: 4
+    shell:
+        r"""
+        picard MarkDuplicates \
+            I={input.bam} \
+            O={output.bam} \
+            M={output.metrics} \
+            REMOVE_DUPLICATES=true \
+            ASSUME_SORTED=true \
+            VALIDATION_STRINGENCY=SILENT \
+            2> {log}
+
+        samtools index {output.bam}
+        """
+
+# Rule : BAM samtools flagstat
+
 
 # Rule 6: Peak calling with MACS2
 
