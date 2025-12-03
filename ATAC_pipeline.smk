@@ -194,7 +194,7 @@ rule remove_blacklist:
         """
 # Remove non canonical reads?
 
-# Rule 5.4: Mark duplicates, remove dupliccates and low quality reads
+# Rule 5.4: Mark duplicates, remove duplicates
 rule mark_duplicates:
     input:
         bam = f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam"
@@ -202,18 +202,17 @@ rule mark_duplicates:
         bam  = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam",
         metrics = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.metrics.txt"
     log:
-        f"{dir_out}/logs/filter/{{uniq_sample}}.dedup.log"
+        f"{dir_out}/logs/no_duplicates/{{uniq_sample}}.dedup.log"
     threads: 4
     shell:
         r"""
-        picard MarkDuplicates \
+        (picard MarkDuplicates \
             I={input.bam} \
             O={output.bam} \
             M={output.metrics} \
             REMOVE_DUPLICATES=true \
-            ASSUME_SORTED=true \
-            VALIDATION_STRINGENCY=SILENT \
-            2> {log}
+            CREATE_INDEX=true  \
+            2> {log})
 
         samtools index {output.bam}
         """
@@ -226,7 +225,7 @@ rule final_bam_qc:
         idxstats = f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt",
         flagstat = f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt"
     log:
-        f"{dir_out}/logs/qc/{{uniq_sample}}.final_bam_qc.log"
+        f"{dir_out}/logs/final_bam_report/{{uniq_sample}}.final_bam_qc.log"
     threads: 1
     shell:
         r"""
