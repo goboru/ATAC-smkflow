@@ -20,8 +20,14 @@ UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 # This rule sets when the pipeline is finished
 rule all:
     input: 
-        expand(f"{dir_out}/mito/{{uniq_sample}}.noMT.bam", uniq_sample=UNIQ_SAMPLES)
-        #expand(f"{dir_out}/temp_trimming/{{sample}}.trimmed.fastq.gz", sample=SAMPLES)
+        f"{dir_out}/qc_untrimmed/multiqc_report.html",
+        f"{dir_out}/qc_trimmed/multiqc_report.html",
+        
+        expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
+        
+        expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
 
 
 # Rule 1: FastQC before trimming
@@ -168,11 +174,11 @@ rule remove_mito:
 # Rule 5.3: Remove ENCODE blacklist regions
 rule remove_blacklist:
     input:
-        bam = f"{dir_out}/filtered/{{uniq_sample}}.noMT.bam"
+        bam = f"{dir_out}/mito/{{uniq_sample}}.noMT.bam"
     output:
-        bam = f"{dir_out}/filtered/{{uniq_sample}}.noMT.noBlacklist.bam"
+        bam = f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam"
     log:
-        f"{dir_out}/logs/filter/{{uniq_sample}}.remove_blacklist.log"
+        f"{dir_out}/logs/no_blacklist/{{uniq_sample}}.remove_blacklist.log"
     params:
         blacklist = config["blacklist_bed"]
     threads: 4
@@ -191,10 +197,10 @@ rule remove_blacklist:
 # Rule 5.4: Mark duplicates, remove dupliccates and low quality reads
 rule mark_duplicates:
     input:
-        bam = f"{dir_out}/filtered/{{uniq_sample}}.noMT.noBlacklist.bam"
+        bam = f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam"
     output:
-        bam  = f"{dir_out}/filtered/{{uniq_sample}}.final.dedup.bam",
-        metrics = f"{dir_out}/filtered/{{uniq_sample}}.final.dedup.metrics.txt"
+        bam  = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam",
+        metrics = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.metrics.txt"
     log:
         f"{dir_out}/logs/filter/{{uniq_sample}}.dedup.log"
     threads: 4
@@ -212,7 +218,27 @@ rule mark_duplicates:
         samtools index {output.bam}
         """
 
-# Rule : BAM samtools flagstat
+# Rule : Final QC report after peak calling
+rule final_bam_qc:
+    input:
+        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+    output:
+        idxstats = f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt",
+        flagstat = f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt"
+    log:
+        f"{dir_out}/logs/qc/{{uniq_sample}}.final_bam_qc.log"
+    threads: 1
+    shell:
+        r"""
+        # Index BAM (required for idxstats)
+        samtools index {input.bam} 2>> {log}
+
+        # idxstats
+        samtools idxstats {input.bam} > {output.idxstats} 2>> {log}
+
+        # flagstat
+        samtools flagstat {input.bam} > {output.flagstat} 2>> {log}
+        """
 
 
 # Rule 6: Peak calling with MACS2
