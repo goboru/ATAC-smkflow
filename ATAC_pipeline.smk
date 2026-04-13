@@ -22,12 +22,12 @@ rule all:
     input: 
         f"{dir_out}/qc_untrimmed/multiqc_report.html",
         f"{dir_out}/qc_trimmed/multiqc_report.html",
-        
-        expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
-        expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
-        expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
-        expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
-        expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES)
+        expand(f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam", uniq_sample=UNIQ_SAMPLES)
+        # expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
+        # expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
+        # expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
+        # expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
+        # expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES)
 
 
 # Rule 1: FastQC before trimming
@@ -194,81 +194,99 @@ rule remove_blacklist:
         """
 # Remove non canonical reads?
 
-# Rule 5.4: Mark duplicates, remove duplicates
-rule mark_duplicates:
-    input:
-        bam = f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam"
-    output:
-        bam  = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam",
-        metrics = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.metrics.txt"
-    log:
-        f"{dir_out}/logs/no_duplicates/{{uniq_sample}}.dedup.log"
-    threads: 4
-    shell:
-        r"""
-        (picard MarkDuplicates \
-            I={input.bam} \
-            O={output.bam} \
-            M={output.metrics} \
-            REMOVE_DUPLICATES=true \
-            CREATE_INDEX=true  \
-            2> {log})
+# # Rule 5.4: Mark duplicates, remove duplicates
+# rule mark_duplicates:
+#     input:
+#         bam = f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam"
+#     output:
+#         bam  = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam",
+#         metrics = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.metrics.txt"
+#     log:
+#         f"{dir_out}/logs/no_duplicates/{{uniq_sample}}.dedup.log"
+#     threads: 4
+#     shell:
+#         r"""
+#         (picard MarkDuplicates \
+#             I={input.bam} \
+#             O={output.bam} \
+#             M={output.metrics} \
+#             REMOVE_DUPLICATES=true \
+#             CREATE_INDEX=true  \
+#             2> {log})
 
-        samtools index {output.bam}
-        """
+#         samtools index {output.bam}
+#         """
 
-# Rule : Final QC report before peak calling
-rule final_bam_qc:
-    input:
-        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
-    output:
-        idxstats = f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt",
-        flagstat = f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt"
-    log:
-        f"{dir_out}/logs/final_bam_report/{{uniq_sample}}.final_bam_qc.log"
-    threads: 1
-    shell:
-        r"""
-        # Index BAM (required for idxstats)
-        samtools index {input.bam} 2>> {log}
+# # Rule : Final QC report before peak calling
+# rule final_bam_qc:
+#     input:
+#         bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+#     output:
+#         idxstats = f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt",
+#         flagstat = f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt"
+#     log:
+#         f"{dir_out}/logs/final_bam_report/{{uniq_sample}}.final_bam_qc.log"
+#     threads: 1
+#     shell:
+#         r"""
+#         # Index BAM (required for idxstats)
+#         samtools index {input.bam} 2>> {log}
 
-        # idxstats
-        samtools idxstats {input.bam} > {output.idxstats} 2>> {log}
+#         # idxstats
+#         samtools idxstats {input.bam} > {output.idxstats} 2>> {log}
 
-        # flagstat
-        samtools flagstat {input.bam} > {output.flagstat} 2>> {log}
-        """
+#         # flagstat
+#         samtools flagstat {input.bam} > {output.flagstat} 2>> {log}
+#         """
 
 
-# Rule 6: Peak calling with MACS2
-rule macs2_peak_calling:
-    input:
-        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
-    output:
-        peaks = f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak",
-        summits = f"{dir_out}/peaks/{{uniq_sample}}_summits.bed",
-        xls = f"{dir_out}/peaks/{{uniq_sample}}_peaks.xls"
-    log:
-        f"{dir_out}/logs/macs2/{{uniq_sample}}.log"
-    params:
-        # -f BAMPE: Interprets paired-end alignment
-        # -q 0.05: False Discovery Rate threshold
-        # -g hs: Genome size (e.g., 'hs' for human, 'mm' for mouse)
-        genome_size = config.get("genome_size", "hs"),
-        out_dir = f"{dir_out}/peaks",
-        name = "{uniq_sample}"
-    shell:
-        """
-        macs2 callpeak \
-            -t {input.bam} \
-            -f BAMPE \
-            -g {params.genome_size} \
-            -n {params.name} \
-            --outdir {params.out_dir} \
-            -q 0.05 \
-            --keep-dup all \
-            &> {log}
-        """
+# # Rule 5.5: Prepare BAM for MACS2 (Filtering and Sorting)
+# rule filter_for_macs2:
+#     input:
+#         bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+#     output:
+#         bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam"
+#     log:
+#         f"{dir_out}/logs/macs2_filter/{{uniq_sample}}.log"
+#     threads: 4
+#     shell:
+#         """
+#         # -h: include header
+#         # -q 30: Quality score >= 30
+#         # -f 2: Proper pairs only
+#         # -F 1804: Exclude unmapped, secondary, QC fail, and dups
+#         samtools view -h -q 30 -f 2 -F 1804 {input.bam} | \
+#         samtools sort -@ {threads} -O bam -o {output.bam} - 
+        
+#         samtools index {output.bam}
+#         """
+
+# # Rule 6: Peak calling with MACS2 (Using the filtered BAM)
+# rule macs2_peak_calling:
+#     input:
+#         bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam"
+#     output:
+#         peaks = f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak",
+#         summits = f"{dir_out}/peaks/{{uniq_sample}}_summits.bed",
+#         xls = f"{dir_out}/peaks/{{uniq_sample}}_peaks.xls"
+#     log:
+#         f"{dir_out}/logs/macs2/{{uniq_sample}}.log"
+#     params:
+#         genome_size = config.get("genome_size", "hs"),
+#         out_dir = f"{dir_out}/peaks",
+#         name = "{uniq_sample}"
+#     shell:
+#         """
+#         macs2 callpeak \
+#             -t {input.bam} \
+#             -f BAMPE \
+#             -g {params.genome_size} \
+#             -n {params.name} \
+#             --outdir {params.out_dir} \
+#             -q 0.05 \
+#             --keep-dup all \
+#             &> {log}
+#         """
 
 
 # Rule 7: Quality controls after peak calling
