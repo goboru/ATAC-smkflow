@@ -24,10 +24,10 @@ rule all:
         f"{dir_out}/qc_trimmed/multiqc_report.html",
         
         expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
-        
         expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES)
 
 
 # Rule 1: FastQC before trimming
@@ -217,7 +217,7 @@ rule mark_duplicates:
         samtools index {output.bam}
         """
 
-# Rule : Final QC report after peak calling
+# Rule : Final QC report before peak calling
 rule final_bam_qc:
     input:
         bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
@@ -241,6 +241,35 @@ rule final_bam_qc:
 
 
 # Rule 6: Peak calling with MACS2
+rule macs2_peak_calling:
+    input:
+        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+    output:
+        peaks = f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak",
+        summits = f"{dir_out}/peaks/{{uniq_sample}}_summits.bed",
+        xls = f"{dir_out}/peaks/{{uniq_sample}}_peaks.xls"
+    log:
+        f"{dir_out}/logs/macs2/{{uniq_sample}}.log"
+    params:
+        # -f BAMPE: Interprets paired-end alignment
+        # -q 0.05: False Discovery Rate threshold
+        # -g hs: Genome size (e.g., 'hs' for human, 'mm' for mouse)
+        genome_size = config.get("genome_size", "hs"),
+        out_dir = f"{dir_out}/peaks",
+        name = "{uniq_sample}"
+    shell:
+        """
+        macs2 callpeak \
+            -t {input.bam} \
+            -f BAMPE \
+            -g {params.genome_size} \
+            -n {params.name} \
+            --outdir {params.out_dir} \
+            -q 0.05 \
+            --keep-dup all \
+            &> {log}
+        """
+
 
 # Rule 7: Quality controls after peak calling
 
