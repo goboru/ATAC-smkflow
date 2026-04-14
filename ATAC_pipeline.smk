@@ -22,7 +22,8 @@ rule all:
     input: 
         f"{dir_out}/qc_untrimmed/multiqc_report.html",
         f"{dir_out}/qc_trimmed/multiqc_report.html",
-        expand(f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam", uniq_sample=UNIQ_SAMPLES)
+        expand(f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES)
         # expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
         # expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
         # expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
@@ -194,6 +195,7 @@ rule remove_blacklist:
         """
 # Remove non canonical reads?
 
+
 # # Rule 5.4: Mark duplicates, remove duplicates
 # rule mark_duplicates:
 #     input:
@@ -213,11 +215,43 @@ rule remove_blacklist:
 #             REMOVE_DUPLICATES=true \
 #             CREATE_INDEX=true  \
 #             2> {log})
-
-#         samtools index {output.bam}
 #         """
 
-# # Rule : Final QC report before peak calling
+
+
+#Changing to samtools markdup requires an extra step to know the duplicate rate
+
+# Rule 5.4: Mark and Remove duplicates using Samtools
+rule samtools_dedup:
+    input:
+        bam = f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam"
+    output:
+        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+    log:
+        f"{dir_out}/logs/no_duplicates/{{uniq_sample}}.sam_dedup.log"
+    threads: 8
+    shell:
+        """
+        # 1. Sort by name (required for fixmate)
+        samtools sort -n -@ {threads} {input.bam} -o {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.namesort.bam 2> {log}
+
+        # 2. Add mate tags (required for markdup)
+        samtools fixmate -m {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.namesort.bam {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.fixmate.bam 2>> {log}
+
+        # 3. Sort by coordinates again
+        samtools sort -@ {threads} {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.fixmate.bam -o {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.coordsort.bam 2>> {log}
+
+        # 4. Mark and remove duplicates (-r flag removes them)
+        samtools markdup -r -@ {threads} {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.coordsort.bam {output.bam} 2>> {log}
+
+        # 5. Index the final BAM
+        samtools index {output.bam} 2>> {log}
+
+        # 6. Cleanup temporary files
+        rm {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.*.bam
+        """
+
+# # Rule 5.5: Final QC report before peak calling
 # rule final_bam_qc:
 #     input:
 #         bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
@@ -240,7 +274,7 @@ rule remove_blacklist:
 #         """
 
 
-# # Rule 5.5: Prepare BAM for MACS2 (Filtering and Sorting)
+# # Rule 6.1: Prepare BAM for MACS2 (Filtering and Sorting)
 # rule filter_for_macs2:
 #     input:
 #         bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
@@ -261,7 +295,7 @@ rule remove_blacklist:
 #         samtools index {output.bam}
 #         """
 
-# # Rule 6: Peak calling with MACS2 (Using the filtered BAM)
+# # Rule 6.2: Peak calling with MACS2 (Using the filtered BAM)
 # rule macs2_peak_calling:
 #     input:
 #         bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam"
