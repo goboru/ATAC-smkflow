@@ -6,12 +6,11 @@
 * Alignment to hg38 with bowtie2
 * Remove mitochondrial reads
 * Remove ENCODE blacklist regions
-* Remove mitochondrial reads
-* Remove duplicate reads with picard
+* Remove duplicate reads with samtools markdup
+* Peak calling with macs3
+* FRiP scores and plot
 
 Pending:
-- Peak calling with macs2
-- Calculate FRiP score
 - Calculate TSS enrichment and plot
 - Generate bigWig tracks for visualization
 - Diff accesibility analysis
