@@ -17,18 +17,22 @@ dir_out = config.get("out_dir", "results")
 SAMPLES, = glob_wildcards(f"{dir_raw}/{{sample}}.fastq.gz")
 UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
 
+wildcard_constraints:
+    uniq_sample = "((?!_r1).)*"
+
 # This rule sets when the pipeline is finished
 rule all:
     input: 
         f"{dir_out}/qc_untrimmed/multiqc_report.html",
         f"{dir_out}/qc_trimmed/multiqc_report.html",
         expand(f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam", uniq_sample=UNIQ_SAMPLES),
-        expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES)
+        expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
         # expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
-        # expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
-        # expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
-        # expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
-        # expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES)
+        expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/frip/{{uniq_sample}}_frip.txt", uniq_sample=UNIQ_SAMPLES), 
+        f"{dir_out}/frip/all_samples_frip_mqc.png"
 
 
 # Rule 1: FastQC before trimming
@@ -193,7 +197,7 @@ rule remove_blacklist:
 
         samtools index {output.bam}
         """
-# Remove non canonical reads?
+# Remove non canonical reads? => Before peak calling
 
 
 # # Rule 5.4: Mark duplicates, remove duplicates
@@ -219,7 +223,7 @@ rule remove_blacklist:
 
 
 
-#Changing to samtools markdup requires an extra step to know the duplicate rate
+#Changing to samtools markdup. requires an extra step to know the duplicate rate
 
 # Rule 5.4: Mark and Remove duplicates using Samtools
 rule samtools_dedup:
@@ -251,80 +255,176 @@ rule samtools_dedup:
         rm {dir_out}/no_duplicates/{{wildcards.uniq_sample}}.tmp.*.bam
         """
 
-# # Rule 5.5: Final QC report before peak calling
-# rule final_bam_qc:
-#     input:
-#         bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
-#     output:
-#         idxstats = f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt",
-#         flagstat = f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt"
-#     log:
-#         f"{dir_out}/logs/final_bam_report/{{uniq_sample}}.final_bam_qc.log"
-#     threads: 1
-#     shell:
-#         r"""
-#         # Index BAM (required for idxstats)
-#         samtools index {input.bam} 2>> {log}
+# Rule 5.5: Final QC report before peak calling
+rule final_bam_qc:
+    input:
+        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+    output:
+        idxstats = f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt",
+        flagstat = f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt"
+    log:
+        f"{dir_out}/logs/final_bam_report/{{uniq_sample}}.final_bam_qc.log"
+    threads: 1
+    shell:
+        r"""
+        # Index BAM (required for idxstats)
+        samtools index {input.bam} 2>> {log}
 
-#         # idxstats
-#         samtools idxstats {input.bam} > {output.idxstats} 2>> {log}
+        # idxstats
+        samtools idxstats {input.bam} > {output.idxstats} 2>> {log}
 
-#         # flagstat
-#         samtools flagstat {input.bam} > {output.flagstat} 2>> {log}
-#         """
+        # flagstat
+        samtools flagstat {input.bam} > {output.flagstat} 2>> {log}
+        """
 
 
-# # Rule 6.1: Prepare BAM for MACS2 (Filtering and Sorting)
-# rule filter_for_macs2:
-#     input:
-#         bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
-#     output:
-#         bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam"
-#     log:
-#         f"{dir_out}/logs/macs2_filter/{{uniq_sample}}.log"
-#     threads: 4
-#     shell:
-#         """
-#         # -h: include header
-#         # -q 30: Quality score >= 30
-#         # -f 2: Proper pairs only
-#         # -F 1804: Exclude unmapped, secondary, QC fail, and dups
-#         samtools view -h -q 30 -f 2 -F 1804 {input.bam} | \
-#         samtools sort -@ {threads} -O bam -o {output.bam} - 
+# Rule 6.1: Prepare BAM for MACS2 (Filtering and Sorting)
+rule filter_for_macs2:
+    input:
+        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+    output:
+        bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam"
+    log:
+        f"{dir_out}/logs/macs2_filter/{{uniq_sample}}.log"
+    threads: 4
+    shell:
+        """
+        # Define the primary chromosomes we want to keep
+        CHRS="chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY"
+
+        # -h: include header
+        # -q 30: Quality score >= 30
+        # -f 2: Proper pairs only
+        # -F 1804: Exclude unmapped, secondary, QC fail, and dups
+        # Filter for quality, proper pairs, and specific chromosomes
+        samtools view -h -q 30 -f 2 -F 1804 {input.bam} $CHRS | \
+        samtools sort -@ {threads} -O bam -o {output.bam} - 
         
-#         samtools index {output.bam}
-#         """
+        samtools index {output.bam}
+        """
 
-# # Rule 6.2: Peak calling with MACS2 (Using the filtered BAM)
-# rule macs2_peak_calling:
-#     input:
-#         bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam"
-#     output:
-#         peaks = f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak",
-#         summits = f"{dir_out}/peaks/{{uniq_sample}}_summits.bed",
-#         xls = f"{dir_out}/peaks/{{uniq_sample}}_peaks.xls"
-#     log:
-#         f"{dir_out}/logs/macs2/{{uniq_sample}}.log"
-#     params:
-#         genome_size = config.get("genome_size", "hs"),
-#         out_dir = f"{dir_out}/peaks",
-#         name = "{uniq_sample}"
-#     shell:
-#         """
-#         macs2 callpeak \
-#             -t {input.bam} \
-#             -f BAMPE \
-#             -g {params.genome_size} \
-#             -n {params.name} \
-#             --outdir {params.out_dir} \
-#             -q 0.05 \
-#             --keep-dup all \
-#             &> {log}
-#         """
+# Rule 6.2: Peak calling with MACS2 (Using the filtered BAM)
+rule macs2_peak_calling:
+    input:
+        bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam"
+    output:
+        peaks = f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak",
+        summits = f"{dir_out}/peaks/{{uniq_sample}}_summits.bed",
+        xls = f"{dir_out}/peaks/{{uniq_sample}}_peaks.xls"
+    log:
+        f"{dir_out}/logs/macs2/{{uniq_sample}}.log"
+    params:
+        out_dir = f"{dir_out}/peaks",
+        name = "{uniq_sample}"
+    shell:
+        """
+        macs3 callpeak \
+            -t {input.bam} \
+            -f BAMPE \
+            -g "hs" \
+            -n {params.name} \
+            --outdir {params.out_dir} \
+            -q 0.05 \
+            --keep-dup all \
+            &> {log}
+        """
 
 
-# Rule 7: Quality controls after peak calling
+# Rule 7: Quality controls after peak calling: FRiP 
+# Rule 7.1: Calculate FRiP Score
+rule calculate_frip:
+    input:
+        bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam",
+        peaks = f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak"
+    output:
+        frip = f"{dir_out}/frip/{{uniq_sample}}_frip.txt"
+    log:
+        f"{dir_out}/logs/frip/{{uniq_sample}}.log"
+    threads: 4
+    shell:
+        """
+        # 1. Convert narrowPeak to a SAF format (required by featureCounts)
+        # SAF format: GeneID  Chr  Start  End  Strand
+        awk 'BEGIN{{OFS="\\t"; print "GeneID","Chr","Start","End","Strand"}} \
+            {{print $4, $1, $2+1, $3, "."}}' {input.peaks} > {input.peaks}.saf
+
+        # 2. Count reads in peaks using featureCounts
+        # -p: paired-end
+        # -F SAF: input is in SAF format
+        # -a: the annotation (our peaks)
+        featureCounts -p -T {threads} -F SAF -a {input.peaks}.saf \
+            -o {input.bam}.featureCounts.txt {input.bam} &> {log}
+
+        # 3. Extract the counts and calculate the ratio
+        # Total reads is the sum of mapped reads from flagstat or the featureCounts summary
+        # We'll use the summary file generated by featureCounts
+        READS_IN_PEAKS=$(awk 'NR>2 {{sum+=$7}} END {{print sum}}' {input.bam}.featureCounts.txt)
+        TOTAL_READS=$(samtools view -c {input.bam})
+        
+        # Calculate FRiP
+        python3 -c "print(f'{{$READS_IN_PEAKS / $TOTAL_READS:.4f}}')" > {output.frip}
+
+        # 4. Clean up
+        rm {input.peaks}.saf {input.bam}.featureCounts.txt {input.bam}.featureCounts.txt.summary
+        """
+
+# Rule 7.2: Aggregate FRiP scores and plot
+rule plot_all_frip:
+    input:
+        # We still need this expand so Snakemake knows to finish all samples first
+        frip_files = expand(f"{dir_out}/frip/{{uniq_sample}}_frip.txt", uniq_sample=UNIQ_SAMPLES)
+    output:
+        plot = f"{dir_out}/frip/all_samples_frip_mqc.png"
+    log:
+        f"{dir_out}/logs/plots/frip_plot.log"
+    params:
+        frip_dir = f"{dir_out}/frip"
+    shell:
+        """
+        # We pass the directory path (params.frip_dir) instead of the list
+        Rscript plot_frip.R {output.plot} {params.frip_dir} &> {log}
+        """
+
+
+# Rule 7.3: TSS Enrichment Calculation and Plotting
+rule tss_enrichment:
+    input:
+        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam",
+        bai = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam.bai",
+        tss = config.get("tss_bed", "references/hg38_tss.bed")
+    output:
+        matrix = f"{dir_out}/tss/{{uniq_sample}}_tss_matrix.gz",
+        plot = f"{dir_out}/plots/{{uniq_sample}}_tss_enrichment.png"
+    log:
+        f"{dir_out}/logs/tss/{{uniq_sample}}.log"
+    threads: 8
+    shell:
+        """
+        # 1. Calculate the signal matrix around TSS
+        # -a: distance downstream of TSS
+        # -b: distance upstream of TSS
+        # --skipZeros: ignore regions with no signal
+        computeMatrix reference-point \
+            --referencePoint TSS \
+            -b 2000 -a 2000 \
+            -R {input.tss} \
+            -S {input.bam} \
+            --skipZeros \
+            -o {output.matrix} \
+            -p {threads} &> {log}
+
+        # 2. Generate the plot
+        plotProfile \
+            -m {output.matrix} \
+            -o {output.plot} \
+            --plotTitle "TSS Enrichment: {wildcards.uniq_sample}" \
+            --regionsLabel "TSS" \
+            --plotType lines \
+            --perGroup \
+            --colors green &>> {log}
+        """
 
 
 # Rule 8: Differential analysis
+
 # Rule 8.1: Sensitivity analysis. Sex, batch, age?
