@@ -32,7 +32,9 @@ rule all:
         expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/frip/{{uniq_sample}}_frip.txt", uniq_sample=UNIQ_SAMPLES), 
-        f"{dir_out}/frip/all_samples_frip_mqc.png"
+        f"{dir_out}/frip/all_samples_frip_mqc.png",
+        expand(f"{dir_out}/tss/{{uniq_sample}}_tss_enrichment.png", uniq_sample=UNIQ_SAMPLES) 
+
 
 
 # Rule 1: FastQC before trimming
@@ -386,15 +388,37 @@ rule plot_all_frip:
         """
 
 
+
+
+# Rule 7.3: Change to bigwig. (Needed for 7.4)
+rule bam_to_bw:
+    input:
+        bam = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam",
+        bai = f"{dir_out}/macs2_input/{{uniq_sample}}.filtered.bam.bai"
+    output:
+        bw = f"{dir_out}/bigwig/{{uniq_sample}}.bw"
+    log:
+        f"{dir_out}/logs/bigwig/{{uniq_sample}}_bamCoverage.log"
+    threads: 8
+    shell:
+        """
+        bamCoverage -b {input.bam} \
+            -o {output.bw} \
+            --normalizeUsing BPM \
+            --binSize 10 \
+            -p {threads} \
+            &> {log}
+        """
+
+
 # Rule 7.3: TSS Enrichment Calculation and Plotting
 rule tss_enrichment:
     input:
-        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam",
-        bai = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam.bai",
-        tss = config.get("tss_bed", "references/hg38_tss.bed")
+        bw = f"{dir_out}/bigwig/{{uniq_sample}}.bw",
+        tss = config.get("tss_bed", "hg38_tss.bed")
     output:
         matrix = f"{dir_out}/tss/{{uniq_sample}}_tss_matrix.gz",
-        plot = f"{dir_out}/plots/{{uniq_sample}}_tss_enrichment.png"
+        plot = f"{dir_out}/tss/{{uniq_sample}}_tss_enrichment.png"
     log:
         f"{dir_out}/logs/tss/{{uniq_sample}}.log"
     threads: 8
@@ -406,9 +430,9 @@ rule tss_enrichment:
         # --skipZeros: ignore regions with no signal
         computeMatrix reference-point \
             --referencePoint TSS \
-            -b 2000 -a 2000 \
+            -b 1000 -a 1000 \
             -R {input.tss} \
-            -S {input.bam} \
+            -S {input.bw} \
             --skipZeros \
             -o {output.matrix} \
             -p {threads} &> {log}
@@ -425,6 +449,6 @@ rule tss_enrichment:
         """
 
 
-# Rule 8: Differential analysis
+# Rule 7.3.2: Prepare matrix for R
 
-# Rule 8.1: Sensitivity analysis. Sex, batch, age?
+# Rule 7.3.3: Plot for all the samples

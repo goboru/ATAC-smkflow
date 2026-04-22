@@ -11,3 +11,5 @@ bowtie2_threads: 6
 
 blacklist_bed: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/external/ENCODE-hg38-blacklist.v2.bed"
 
+#TSS coordinates for TSS enrichment, hg38
+tss_bed: "/home/gborrego/gborrego/AB_Multiomics_CD14_CD4/data/external/hg38_tss_TableBrowser_1bp.bed" 
