@@ -9,8 +9,8 @@
 * Remove duplicate reads with samtools markdup
 * Peak calling with macs3
 * FRiP scores and plot
+* Calculate TSS enrichment and plot
+* Generate bigWig tracks for visualization
 
 Pending:
-- Calculate TSS enrichment and plot
-- Generate bigWig tracks for visualization
 - Diff accesibility analysis
