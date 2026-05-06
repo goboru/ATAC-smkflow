@@ -98,11 +98,9 @@ p <- ggplot(mt_stats, aes(
   geom_col(fill = "steelblue") +
   theme_bw(base_size = 14) +
   labs(
-    title = "Mitochondrial Reads Percentage per Sample",
-    x = "Mitochondrial Reads (%)",
+    title = "Percentaje of mitochondrial reads per sample",
+    x = "Mitochondrial reads (%)",
     y = "Sample"
   )
 
 ggsave(output_file, plot = p, width = 10, height = 7)
-
-print(p)
