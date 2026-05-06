@@ -27,7 +27,7 @@ rule all:
         f"{dir_out}/qc_trimmed/multiqc_report.html",
         expand(f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
-        # expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
+        expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES),
@@ -161,6 +161,22 @@ rule idxstats:
         samtools idxstats {input.bam} > {output.report} 2>> {log}
         """
 
+# Rule 5.1.1: Plot Mithocondrial Percentage
+rule plot_mit_perc:
+    input:
+        # We still need this expand so Snakemake knows to finish all samples first
+        mit_files = expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES)
+    output:
+        plot = f"{dir_out}/plots/all_samples_mit_perc.png"
+    log:
+        f"{dir_out}/logs/plots/mit_perc_plot.log"
+    params:
+        mit_perc = f"{dir_out}/final_bam_report"
+    shell:
+        """
+        # We pass the directory path (params.frip_dir) instead of the list
+        Rscript mit_perc_plot.R {output.plot} {params.mit_perc} &> {log}
+        """
 # Rule 5.2: remove mitochondrial reads
 rule remove_mito:
     input:
@@ -279,7 +295,6 @@ rule final_bam_qc:
         # flagstat
         samtools flagstat {input.bam} > {output.flagstat} 2>> {log}
         """
-
 
 # Rule 6.1: Prepare BAM for MACS2 (Filtering and Sorting)
 rule filter_for_macs2:
