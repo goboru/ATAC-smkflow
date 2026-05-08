@@ -172,11 +172,11 @@ rule plot_mit_perc:
     log:
         f"{dir_out}/logs/plots/mit_perc_plot.log"
     params:
-        mit_perc = f"{dir_out}/final_bam_report"
+        input_dir = f"{dir_out}/idx_report"
     shell:
         """
         # We pass the directory path (params.frip_dir) instead of the list
-        Rscript mit_perc_plot.R {output.plot} {params.mit_perc} &> {log}
+        Rscript mit_perc_plot.R {output.plot} {params.input_dir} &> {log}
         """
 # Rule 5.2: remove mitochondrial reads
 rule remove_mito:
