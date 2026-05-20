@@ -25,6 +25,7 @@ rule all:
     input: 
         f"{dir_out}/qc_untrimmed/multiqc_report.html",
         f"{dir_out}/qc_trimmed/multiqc_report.html",
+        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/idx_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
@@ -393,7 +394,7 @@ rule plot_all_frip:
         # We still need this expand so Snakemake knows to finish all samples first
         frip_files = expand(f"{dir_out}/frip/{{uniq_sample}}_frip.txt", uniq_sample=UNIQ_SAMPLES)
     output:
-        plot = f"{dir_out}/frip/all_samples_frip_mqc.png"
+        plot = f"{dir_out}/plots/all_samples_frip_mqc.png"
     log:
         f"{dir_out}/logs/plots/frip_plot.log"
     params:
