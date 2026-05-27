@@ -6,6 +6,9 @@
 
 # Use: conda activate ATACpipeline; snakemake -s ATAC_pipeline.smk --cores 8
 
+# Variant calling is only performed if specified: 
+    # snakemake -s ATAC_pipeline.smk variants --cores 8
+
 # Configurable paths
 configfile: "config.yaml"  # optional
 
@@ -16,6 +19,15 @@ dir_out = config.get("out_dir", "results")
 # Gather FASTQ files
 SAMPLES, = glob_wildcards(f"{dir_raw}/{{sample}}.fastq.gz")
 UNIQ_SAMPLES, = glob_wildcards(f"{dir_raw}/{{uniq_sample}}_r1.fastq.gz")
+
+
+#VARIANT CALLING
+REFERENCE_ORIG = config["reference_orig"]
+VC_THREADS = config["vc_threads"]
+MIN_MAPQ = config["min_mapq"]
+MIN_BASEQ = config["min_baseq"]
+MAX_DEPTH = config["max_depth"]
+
 
 wildcard_constraints:
     uniq_sample = "((?!_r1).)*"
@@ -39,6 +51,15 @@ rule all:
         f"{dir_out}/plots/all_samples_tss_rich.png"
 
 
+rule variants:
+    input: 
+        f"{dir_out}/variant_calling/variants.filtered.vcf.gz",
+        f"{dir_out}/variant_calling/variants.filtered.vcf.gz.tbi",
+        f"{dir_out}/variant_calling/stats.txt",
+        f"{dir_out}/variant_calling/variants.filtered.vcf",
+        f"{dir_out}/variant_calling/variants.varCA.filtered.bed",
+        f"{dir_out}/variant_calling/variants.varCA.filtered.bim",
+        f"{dir_out}/variant_calling/variants.varCA.filtered.fam"
 
 # Rule 1: FastQC before trimming
 rule fastqc_untrimmed:
@@ -221,33 +242,8 @@ rule remove_blacklist:
 
         samtools index {output.bam}
         """
-# Remove non canonical reads? => Before peak calling
 
 
-# # Rule 5.4: Mark duplicates, remove duplicates
-# rule mark_duplicates:
-#     input:
-#         bam = f"{dir_out}/no_blacklist/{{uniq_sample}}.noMT.noBlacklist.bam"
-#     output:
-#         bam  = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam",
-#         metrics = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.metrics.txt"
-#     log:
-#         f"{dir_out}/logs/no_duplicates/{{uniq_sample}}.dedup.log"
-#     threads: 4
-#     shell:
-#         r"""
-#         (picard MarkDuplicates \
-#             I={input.bam} \
-#             O={output.bam} \
-#             M={output.metrics} \
-#             REMOVE_DUPLICATES=true \
-#             CREATE_INDEX=true  \
-#             2> {log})
-#         """
-
-
-
-#Changing to samtools markdup. requires an extra step to know the duplicate rate
 
 # Rule 5.4: Mark and Remove duplicates using Samtools
 rule samtools_dedup:
@@ -498,3 +494,177 @@ rule plot_all_tss:
         tss_dir = f"{dir_out}/tss"
     shell:
         "Rscript plot_all_tss.R {output.plot} {params.tss_dir} &> {log}"
+
+
+# Rule 8: Variant Calling  ==============================================================
+
+# Rule 8.1: Preparing the reference
+rule reference:
+    input:
+        reference = REFERENCE_ORIG
+    output:
+        #reference_chr: "/media/WORK/vserrano/ATAC_CD14/data/external/reference_chr.fa"
+        ref_chr = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa"
+    log:
+        f"{dir_out}/variant_calling/logs/reference/prepare_reference.log"
+    shell:
+        """
+        (
+            sed -E 's/^>([0-9]+|X|Y|MT)/>chr\1/' {input.reference} \
+            | sed 's/^>chrMT/>chrM/' \
+            > {output.ref_chr}
+        ) 2> {log}
+        """
+
+# Rule 8.2: Index Reference and List Bam Files
+rule index_reference:
+    input:
+        ref_chr = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa"
+    output:
+        fai = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa.fai"
+    log:
+        f"{dir_out}/variant_calling/logs/reference/index_reference.log"
+    shell:
+        """
+        samtools faidx {input.ref_chr} &> {log}
+        """
+
+# Rule 8.3: Generate Bam Files
+rule bam_list:
+    input:
+        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam.bai")
+        BAM_DIR= f"{dir_out}/aligned/"
+    output:
+        bamlist = f"{dir_out}/variant_calling/bam.list"
+    log:
+        f"{dir_out}/variant_calling/logs/bam/bam_list.log"
+    shell:
+        """
+        ls {BAM_DIR}/*.bam > {output.bamlist} 2> {log}
+        """
+
+# Rule 8.4: Variant Calling
+rule variant_calling:
+    input:
+        ref = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa"
+        fai = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa.fai",
+        bamlist = f"{dir_out}/variant_calling/bam.list"
+    output:
+        vcf = f"{dir_out}/variant_calling/variants.raw.vcf.gz"
+    log:
+        f"{dir_out}/variant_calling/logs/variant_calling/mpileup_call.log"
+    threads: VC_THREADS
+    shell:
+        """
+        bcftools mpileup \
+            -f {input.ref} \
+            -q {MIN_MAPQ} \
+            -Q {MIN_BASEQ} \
+            -d {MAX_DEPTH} \
+            --no-BAQ \
+            -b {input.bamlist} \
+            -Ou | \
+        bcftools call \
+            -mv \
+            -Oz \
+            -o {output.vcf} \
+            &> {log}
+        """
+
+# Rule 8.5: Index Raw VCF
+rule index_raw_vcf:
+    input:
+        vcf = f"{dir_out}/variant_calling/variants.raw.vcf.gz"
+    output:
+        tbi = f"{dir_out}/variant_calling/variants.raw.vcf.gz.tbi"
+    log:
+        f"{dir_out}/variant_calling/logs/variant_calling/index_raw_vcf.log"
+    shell:
+        """
+        tabix -p vcf {input.vcf} &> {log}
+        """
+
+#Rule 8.7: Filter variants
+rule filter_variants:
+    input:
+        vcf = f"{dir_out}/variant_calling/variants.raw.vcf.gz",
+        tbi = f"{dir_out}/variant_calling/variants.raw.vcf.gz.tbi"
+    output:
+        vcf = f"{dir_out}/variant_calling/variants.filtered.vcf.gz"
+    log:
+        f"{dir_out}/variant_calling/logs/filter/filter_variants.log"
+    shell:
+        """
+        bcftools filter \
+            -e 'QUAL<20 || DP<10 || MQ<30' \
+            {input.vcf} \
+            -Oz \
+            -o {output.vcf} \
+            &> {log}
+        """
+
+# Rule 8.8: Index Filtered VCF
+rule index_filtered_vcf:
+    input:
+    	vcf = f"{dir_out}/variant_calling/variants.filtered.vcf.gz"
+    output:
+   	    tbi = f"{dir_out}/variant_calling/variants.filtered.vcf.gz.tbi"
+    log:
+        f"{dir_out}/variant_calling/logs/filter/index_filtered_vcf.log"
+    shell:
+        """
+        tabix -p vcf {input.vcf} &> {log}
+        """
+
+# Rule 8.9: Stats
+rule stats:
+    input:
+        vcf = f"{dir_out}/variant_calling/variants.filtered.vcf.gz"
+    output:
+    	stats = f"{dir_out}/variant_calling/stats.txt"
+    log:
+        f"{dir_out}/variant_calling/logs/stats/stats.log"
+    shell:
+        """
+        bcftools stats {input.vcf} > {output.stats} 2> {log}
+        """
+
+# Rule 8.11: Gunzip vcf.gz
+rule unzip_vcf:
+    input:
+        vcf = f"{VCF_OUTDIR}/variants.filtered.vcf.gz"
+    output:
+    	vcf_unzip=f"{VCF_OUTDIR}/variants.filtered.vcf"
+    log:
+        f"{VCF_OUTDIR}/logs/unzip/unzip.log"
+    shell:
+        """
+        gunzip -c {input.vcf} > {output.vcf_unzip} 2> {log}
+        """
+
+# Rule 8.12: PLINK2 for .fam, .bim, .bed
+rule plink2:
+    input:
+        vcf = f"{dir_out}/variant_calling/variants.filtered.vcf.gz"
+    output:
+        vcf_unzip = f"{dir_out}/variant_calling/variants.filtered.vcf",
+        prefix = f"{dir_out}/variant_calling/variants.varCA.filtered",
+	    bed = f"{dir_out}/variant_calling/variants.varCA.filtered.bed",
+	    bim = f"{dir_out}/variant_calling/variants.varCA.filtered.bim",
+    	fam = f"{dir_out}/variant_calling/variants.varCA.filtered.fam"
+    log:
+        f"{dir_out}/variant_calling/logs/plink2/plink2.log"
+    shell:
+        """
+	    gunzip -c {input.vcf} > {output.vcf_unzip} 
+    
+        plink2 \
+            --vcf {output.vcf_unzip} \
+            --make-bed \
+            --out {output.prefix} \
+            --autosome \
+            --snps-only \
+            --geno 0.2 \ 
+            --max-alleles 2 \
+            &> {log}
+        """
