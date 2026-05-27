@@ -44,6 +44,7 @@ rule all:
         f"{dir_out}/plots/all_samples_mit_perc.png",
         expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.idxstats.txt", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/final_bam_report/{{uniq_sample}}.flagstat.txt", uniq_sample=UNIQ_SAMPLES),
+        f"{dir_out}/qc_fragment_sizes/all_samples_fragment_density.pdf",
         expand(f"{dir_out}/peaks/{{uniq_sample}}_peaks.narrowPeak", uniq_sample=UNIQ_SAMPLES),
         expand(f"{dir_out}/frip/{{uniq_sample}}_frip.txt", uniq_sample=UNIQ_SAMPLES), 
         f"{dir_out}/frip/all_samples_frip_mqc.png",
@@ -297,6 +298,35 @@ rule final_bam_qc:
         samtools flagstat {input.bam} > {output.flagstat} 2>> {log}
         """
 
+#Rule 5.5 fragment size distribution plot
+
+#Rule 5.5.1 fragment size files generation
+rule fragment_size_distribution:
+    input:
+        bam = f"{dir_out}/no_duplicates/{{uniq_sample}}.final.dedup.bam"
+    output:
+        sizes = f"{dir_out}/qc_fragment_sizes/{{uniq_sample}}_fragment_sizes.txt"
+    log:
+        f"{dir_out}/logs/qc_fragment_sizes/{{uniq_sample}}_fragment_size.log"
+    shell:
+        """
+        samtools view -f 2 {input.bam} | awk '$9 > 0 {{print $9}}' > {output.sizes} 2> {log}
+        """
+
+#Rule 5.5.2 fragment size joint density plot
+rule fragment_size_density_plot:
+    input:
+        expand(f"{dir_out}/qc_fragment_sizes/{{uniq_sample}}_fragment_sizes.txt", uniq_sample=UNIQ_SAMPLES)
+    output:
+        pdf = f"{dir_out}/qc_fragment_sizes/all_samples_fragment_density.pdf"
+    log:
+        f"{dir_out}/logs/qc_fragment_sizes/all_samples_fragment_density.log"
+    shell:
+        """
+        Rscript Frag_size_plot.R {dir_out}/qc_fragment_sizes {output.pdf} &> {log}
+        """
+
+
 # Rule 6.1: Prepare BAM for MACS2 (Filtering and Sorting)
 rule filter_for_macs2:
     input:
@@ -532,7 +562,7 @@ rule index_reference:
 # Rule 8.3: Generate Bam Files
 rule bam_list:
     input:
-        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam.bai")
+        expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam.bai", uniq_sample=UNIQ_SAMPLES),
         BAM_DIR= f"{dir_out}/aligned/"
     output:
         bamlist = f"{dir_out}/variant_calling/bam.list"
@@ -546,7 +576,7 @@ rule bam_list:
 # Rule 8.4: Variant Calling
 rule variant_calling:
     input:
-        ref = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa"
+        ref = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa",
         fai = f"{dir_out}/variant_calling/ref_edit/reference_chr.fa.fai",
         bamlist = f"{dir_out}/variant_calling/bam.list"
     output:
@@ -629,20 +659,8 @@ rule stats:
         bcftools stats {input.vcf} > {output.stats} 2> {log}
         """
 
-# Rule 8.11: Gunzip vcf.gz
-rule unzip_vcf:
-    input:
-        vcf = f"{VCF_OUTDIR}/variants.filtered.vcf.gz"
-    output:
-    	vcf_unzip=f"{VCF_OUTDIR}/variants.filtered.vcf"
-    log:
-        f"{VCF_OUTDIR}/logs/unzip/unzip.log"
-    shell:
-        """
-        gunzip -c {input.vcf} > {output.vcf_unzip} 2> {log}
-        """
 
-# Rule 8.12: PLINK2 for .fam, .bim, .bed
+# Rule 8.11: PLINK2 for .fam, .bim, .bed
 rule plink2:
     input:
         vcf = f"{dir_out}/variant_calling/variants.filtered.vcf.gz"
