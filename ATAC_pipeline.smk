@@ -148,6 +148,8 @@ rule bowtie2_align:
 #Rule 5.1: idxstats reports
 rule idxstats:
     input:
+        #This is needed so the alignment does not get unphased with the rest of the pipeline.
+        # There have been weird issues with that
         bam_files = expand(f"{dir_out}/aligned/{{uniq_sample}}_align.bam", uniq_sample=UNIQ_SAMPLES),
         bam = f"{dir_out}/aligned/{{uniq_sample}}_align.bam"
     output:
