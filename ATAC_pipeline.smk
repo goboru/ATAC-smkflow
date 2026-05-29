@@ -540,7 +540,7 @@ rule reference:
     shell:
         """
         (
-            sed -E 's/^>([0-9]+|X|Y|MT)/>chr\1/' {input.reference} \
+            sed -E 's/^>/>chr/' {input.reference} \
             | sed 's/^>chrMT/>chrM/' \
             > {output.ref_chr}
         ) 2> {log}
@@ -559,6 +559,7 @@ rule index_reference:
         samtools faidx {input.ref_chr} &> {log}
         """
 
+
 # Rule 8.3: Generate Bam Files
 rule bam_list:
     input:
@@ -570,7 +571,7 @@ rule bam_list:
         f"{dir_out}/variant_calling/logs/bam/bam_list.log"
     shell:
         """
-        ls {BAM_DIR}/*.bam > {output.bamlist} 2> {log}
+        ls {input.BAM_DIR}/*.bam > {output.bamlist} 2> {log}
         """
 
 # Rule 8.4: Variant Calling
@@ -660,29 +661,39 @@ rule stats:
         """
 
 
-# Rule 8.11: PLINK2 for .fam, .bim, .bed
-rule plink2:
+#Rule 8.11: Gunzip vcf.gz
+rule unzip_vcf:
     input:
         vcf = f"{dir_out}/variant_calling/variants.filtered.vcf.gz"
     output:
-        vcf_unzip = f"{dir_out}/variant_calling/variants.filtered.vcf",
-        prefix = f"{dir_out}/variant_calling/variants.varCA.filtered",
-	    bed = f"{dir_out}/variant_calling/variants.varCA.filtered.bed",
-	    bim = f"{dir_out}/variant_calling/variants.varCA.filtered.bim",
-    	fam = f"{dir_out}/variant_calling/variants.varCA.filtered.fam"
+        vcf_unzip=f"{dir_out}/variant_calling/variants.filtered.vcf"
+    log:
+        f"{dir_out}/variant_calling/logs/unzip/unzip.log"
+    shell:
+        """
+        gunzip -c {input.vcf} > {output.vcf_unzip} 
+        """
+
+#Rule 8.12: PLINK2 for .fam, .bim, .bed
+rule plink2:
+    input:
+        vcf_unzip= f"{dir_out}/variant_calling/variants.filtered.vcf"
+    output:
+        fam = f"{dir_out}/variant_calling/variants.varCA.filtered.fam",
+        bim = f"{dir_out}/variant_calling/variants.varCA.filtered.bim",
+        bed = f"{dir_out}/variant_calling/variants.varCA.filtered.bed"
+    params:
+        prefix = f"{dir_out}/variant_calling/variants.varCA.filtered"
     log:
         f"{dir_out}/variant_calling/logs/plink2/plink2.log"
     shell:
         """
-	    gunzip -c {input.vcf} > {output.vcf_unzip} 
-    
         plink2 \
-            --vcf {output.vcf_unzip} \
+            --vcf {input.vcf_unzip} \
             --make-bed \
-            --out {output.prefix} \
+            --out {params.prefix} \
             --autosome \
             --snps-only \
-            --geno 0.2 \ 
             --max-alleles 2 \
             &> {log}
         """
