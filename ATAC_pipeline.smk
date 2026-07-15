@@ -49,6 +49,7 @@ rule all:
         expand(f"{dir_out}/frip/{{uniq_sample}}_frip.txt", uniq_sample=UNIQ_SAMPLES), 
         f"{dir_out}/frip/all_samples_frip_mqc.png",
         expand(f"{dir_out}/tss/{{uniq_sample}}_tss_enrichment.png", uniq_sample=UNIQ_SAMPLES),
+        f"{dir_out}/tss/all_samples_tsse.txt",
         f"{dir_out}/plots/all_samples_tss_rich.png"
 
 
@@ -457,7 +458,7 @@ rule bam_to_bw:
         """
 
 
-# Rule 7.3: TSS Enrichment Calculation and Plotting
+# Rule 7.3.1: TSS Enrichment Calculation and Plotting
 rule tss_enrichment:
     input:
         bw = f"{dir_out}/bigwig/{{uniq_sample}}.bw",
@@ -477,14 +478,15 @@ rule tss_enrichment:
         # --skipZeros: ignore regions with no signal
         computeMatrix reference-point \
             --referencePoint TSS \
-            -b 1000 -a 1000 \
+            --binSize 1 \
+            -b 2000 -a 2000 \
             -R {input.tss} \
             -S {input.bw} \
             --skipZeros \
             -o {output.matrix} \
             -p {threads} &> {log}
 
-        # 2. Generate the plot
+        # 2. Generate the plot for each sample
         plotProfile \
             -m {output.matrix} \
             -o {output.plot} \
@@ -494,6 +496,20 @@ rule tss_enrichment:
             --outFileNameData {output.tab} \
             --perGroup \
             --colors green &>> {log}
+        """
+
+
+# Rule 7.3.2: TSS Enrichment Calculation and Plotting
+rule tsse_all_samples:
+    input:
+        tab = expand(f"{dir_out}/tss/{{uniq_sample}}_tss_profile.tab", uniq_sample=UNIQ_SAMPLES)
+    output:
+        score = f"{dir_out}/tss/all_samples_tsse.txt"
+    log:
+        f"{dir_out}/logs/tss/all_samples_tsse.log"
+    shell:
+        """
+        Rscript calculate_tsse.R {output.score} {input.tab} &> {log}
         """
 
 
